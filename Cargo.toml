@@ -1,0 +1,23 @@
+[package]
+name = "asynq-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+chrono = { version = "0.4.39", features = ["serde"] }
+fast_log = { version = "1.5", features = ["lz4", "zip", "gzip"] }
+flume = { version = "0.11.1", default-features = false, features = ["async", "select"] }
+gset = "1.1.0"
+hex = "0.4"
+log = "0.4.22"
+r2d2 = "0.8.10"
+redis = { version = "0.28.1", features = ["tokio-comp","cluster","aio"] }
+serde = { version = "1.0.201", features = ["derive"] }
+serde_derive = "1.0"
+serde_json = "1.0.19"
+sha1 = "0.10"
+tokio = { version = "1", features = ["full"] }
+uuid = { version = "1.7", features = [ "v4","v5","v6","v7","v8"] }
+wg = "0.9"
+get_local_info = "0.2.4"

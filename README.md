@@ -1,2 +1,0 @@
-# asynq-rs
-rust asynq

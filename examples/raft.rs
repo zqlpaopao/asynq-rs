@@ -8,15 +8,17 @@ use log::LevelFilter;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
+use chrono::Local;
 use tokio::select;
 use tokio::sync::{broadcast, RwLock};
+use get_local_info::get_pc_ipv4;
 
 // cargo run  --example  raft --features raft_lock
 #[tokio::main]
 async fn main() {
     init_log();
     let group_name = "test";
-    let lock_num = 3;
+    let lock_num = 1;
     let node_num = 3;
 
     let mut handles = vec![];
@@ -25,7 +27,7 @@ async fn main() {
         let handle = tokio::spawn(async move {
             make_raft_lock(
                 group_name,
-                &format!("lock_{}", i),
+                &format!("{}_{}", get_pc_ipv4(),i),
                 lock_num,
                 node_num,
             ).await;
@@ -72,7 +74,7 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
     loop {
         let lock;
         {
-            lock = raft.lock(lock_namec, 30).await.unwrap_or_default()
+            lock = raft.lock(lock_namec, 60).await.unwrap_or_default()
         }
         if  lock == 1 {
             let raft_clone = raft.clone();
@@ -88,7 +90,8 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                 let raft_clone = raft_clone.clone();
                 let lock_name = lock_name.clone();
                 async move {
-                    let mut interval = tokio::time::interval(Duration::from_secs(3));
+
+                    let mut interval = tokio::time::interval(Duration::from_secs(50));
                     loop {
                         let break_flag;
                         {
@@ -99,7 +102,7 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                         }
                         interval.tick().await;
                         {
-                            match raft_clone.renewal(&lock_name, 10).await {
+                            match raft_clone.renewal(&lock_name, 60).await {
                                 Ok(_) => println!("{} 续期成功", lock_name),
                                 Err(e) => println!("{} 续期失败: {}", lock_name, e),
                             }
@@ -124,6 +127,7 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                     interval.tick().await;
                     println!("{} ------------->处理数据...", lock_name);
                     tokio::time::sleep(Duration::from_secs(10)).await;
+
                     // break;
                 }
             });
@@ -142,10 +146,15 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
             }
                 // 这里可以添加清理逻辑
                 break_flag_single.write().await.store(true, std::sync::atomic::Ordering::Relaxed);
+                // raft.un_lock(lock_namec).await.unwrap();
+
             });
         }
-        tokio::time::sleep(Duration::from_secs(5)).await;
+        tokio::time::sleep(Duration::from_secs(50)).await;
     }
+
+
+
 
     //
     //

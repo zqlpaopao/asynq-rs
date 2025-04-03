@@ -12,6 +12,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/raft.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/raft.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +115,7 @@
       <workItem from="1740619707988" duration="571000" />
       <workItem from="1742793079792" duration="14638000" />
       <workItem from="1743131446437" duration="3496000" />
-      <workItem from="1743156694620" duration="44924000" />
+      <workItem from="1743156694620" duration="52001000" />
     </task>
     <servers />
   </component>

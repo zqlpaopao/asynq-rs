@@ -6,18 +6,18 @@ use asynq_rs::controller::redis::{init_global_redis, RdbType, RedisClientOpt};
 use asynq_rs::controller::server::Server;
 use asynq_rs::controller::task::Task;
 use asynq_rs::controller::task_handler::TaskHandlerTrait;
-use std::collections::HashMap;
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::RwLock;
-use tokio::time::sleep;
-use uuid::Uuid;
 use fast_log::consts::LogSize;
 use fast_log::plugin::file_split::{KeepType, RawFile, Rolling, RollingType};
 use fast_log::plugin::packer::LogPacker;
-use fast_log::{ Config};
+use fast_log::Config;
 use log::LevelFilter;
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::spawn;
+use tokio::sync::RwLock;
+use tokio::time::sleep;
+use uuid::Uuid;
 
 #[tokio::main]
 async fn main() {
@@ -44,16 +44,12 @@ async fn main() {
 
     spawn(async move {
         test_client().await;
-
     });
 
     spawn(async move {
         test_server().await;
-
     });
     tokio::time::sleep(Duration::from_secs(1000000000)).await;
-
-
 }
 
 async fn test_client() {
@@ -139,8 +135,6 @@ async fn test_server() {
 
     // sleep(Duration::from_secs(5)).await;
 }
-
-
 
 pub(crate) fn init_log() {
     fast_log::init(

@@ -109,3 +109,127 @@ if tonumber(ARGV[6]) == tonumber(2) then
 end
 return 1
 "#;
+
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_IN: &str = "Lock";
+
+// enqueueCmd enqueues a given task message.
+//
+// Input:
+// KEYS[1] -> group_name
+// KEYS[2] -> lock_name
+// --
+// ARGV[1] -> lock expire time
+// ARGV[2] -> lock len
+// ARGV[3] -> time now
+
+// Output:
+// Returns 1 if successfully enqueued
+// Returns 0
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_CMD: &str = r#"
+local n = tonumber(redis.call("HLEN", KEYS[1])) or 0
+if tonumber(n) < tonumber(ARGV[2]) then
+    return redis.call("HSET", KEYS[1], KEYS[2], ARGV[1])
+else
+    local all_items = redis.call("HGETALL", KEYS[1])
+    local deleted = 0
+    for i = 1, #all_items, 2 do
+        local field = all_items[i]
+        local value = tonumber(all_items[i+1])
+        if value and value < tonumber(ARGV[3]) then
+            redis.call("HDEL", KEYS[1], field)
+            deleted = deleted + 1
+        end
+    end
+    if (n - deleted) < tonumber(ARGV[2]) then
+        return redis.call("HSET", KEYS[1], KEYS[2], ARGV[1])
+    else
+        return 0
+    end
+end
+return n
+"#;
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_RENEWAL: &str = "Renewal";
+// enqueueCmd enqueues a given task message.
+//
+// Input:
+// KEYS[1] -> group_name
+// KEYS[2] -> lock_name
+// --
+// ARGV[1] -> lock expire time
+
+// Output:
+// Returns 1 if successfully enqueued
+// Returns 0
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_RENEWAL_CMD: &str = r#"
+  local val =  redis.call("HGET", KEYS[1],KEYS[2])
+  if val == nil then
+    return 0
+  end
+  redis.call("HSET", KEYS[1],KEYS[2],ARGV[1])
+  return 1
+"#;
+
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_DEL: &str = "Del";
+// enqueueCmd enqueues a given task message.
+//
+// Input:
+// KEYS[1] -> group_name
+// --
+
+// Output:
+// Returns 1 if successfully enqueued
+// Returns 0
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_DEL_CMD: &str = r#"
+   redis.call("DEL", KEYS[1])
+   return 1
+"#;
+
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_DEL_MEMBER: &str = "Del_MEMBER";
+// enqueueCmd enqueues a given task message.
+//
+// Input:
+// KEYS[1] -> group_name
+// KEYS[2] -> lock_name
+// --
+
+// Output:
+// Returns 1 if successfully enqueued
+// Returns 0
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_DEL_MEMBER_CMD: &str = r#"
+   redis.call("HDEL", KEYS[1],KEYS[2])
+   return 1
+"#;
+
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_GET_MEMBER: &str = "Get_MEMBER";
+// enqueueCmd enqueues a given task message.
+//
+// Input:
+// KEYS[1] -> group_name
+// --
+
+// Output:
+// Returns 1 if successfully enqueued
+// Returns 0
+#[cfg(feature = "raft_lock")]
+pub const RDB_RAFT_GET_MEMBER_CMD: &str = r#"
+ -- RDB_RAFT_GET_MEMBER_CMD
+local hash_data = redis.call('HGETALL', KEYS[1])
+local result = {}
+for i = 1, #hash_data, 2 do
+    -- 确保值可以转为数字
+    local num = tonumber(hash_data[i+1])
+    if num then
+        table.insert(result, {hash_data[i], num})
+    end
+end
+return result
+"#;

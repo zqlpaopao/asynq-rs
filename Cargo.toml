@@ -30,3 +30,6 @@ sha1 = "0.10"
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1.7", features = [ "v4","v5","v6","v7","v8"] }
 wg = "0.9"
+
+[features]
+raft_lock = []

@@ -115,9 +115,9 @@ impl TaskHandler {
                     Ok(res) => {
                         for _ in 0..times {
                             match Self::callback_redis(&res).await {
-                                Ok(_) => {break}
+                                Ok(_) => break,
                                 Err(err) => {
-                                    error!("{}",err);
+                                    error!("{}", err);
                                 }
                             }
                         }
@@ -149,7 +149,12 @@ impl TaskHandler {
                 get_sha(CALLBACK)
                     .await
                     .map(|res| res.to_string())
-                    .ok_or_else(|| anyhow!("taskId : {} Failed to load or retrieve SHA for CALLBACK script",task.task_id))?
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "taskId : {} Failed to load or retrieve SHA for CALLBACK script",
+                            task.task_id
+                        )
+                    })?
             }
         };
 
@@ -167,11 +172,14 @@ impl TaskHandler {
                     task,
                     msg.as_str(),
                 )
-                .await.map_err(|err|anyhow!("taskId : {} doing_callback_cmd err :{}",task.task_id,err))?;
+                .await
+                .map_err(|err| {
+                    anyhow!("taskId : {} doing_callback_cmd err :{}", task.task_id, err)
+                })?;
                 Ok(())
             }
             Err(err) => {
-                error!("taskId : {} Client in queue failed: {}",task.task_id, err);
+                error!("taskId : {} Client in queue failed: {}", task.task_id, err);
                 Err(anyhow!(
                     "taskId : {} `{}` failed to receive task result: {}",
                     task.task_id,

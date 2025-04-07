@@ -1,5 +1,6 @@
+use crate::common::eval::{EVAL, EVAL_SHA};
 use crate::common::func::{get_sha, make_queue, make_task_key};
-use crate::common::queue::{EVAL, EVAL_SHA, PENDING};
+use crate::common::queue::PENDING;
 use crate::common::rdb_cmd::{ENQUEUE, RDB_ENQUEUE_CMD};
 use crate::controller::redis::{get_rdb, make_lua_sha, RedisConnectionManager};
 use crate::controller::task::Task;

@@ -1,5 +1,5 @@
+use crate::common::eval::EVAL_SHA;
 use crate::common::func::get_sha;
-use crate::common::queue::EVAL_SHA;
 use crate::common::rdb_cmd::{
     RDB_RAFT_CMD, RDB_RAFT_DEL, RDB_RAFT_DEL_CMD, RDB_RAFT_DEL_MEMBER, RDB_RAFT_DEL_MEMBER_CMD,
     RDB_RAFT_GET_MEMBER, RDB_RAFT_GET_MEMBER_CMD, RDB_RAFT_IN, RDB_RAFT_RENEWAL,
@@ -99,7 +99,6 @@ impl Raft {
                     if res.0 == 1 || res.0 == 0 {
                         return Ok(res.0);
                     } else {
-                        println!("aaaaa");
                         sha = res.1;
                         retries -= 1;
                         continue;
@@ -250,7 +249,7 @@ async fn tidy_result(
     result: Result<usize, RedisError>,
     key: &str,
     cmd: &str,
-) -> anyhow::Result<(usize, String)> {
+) -> Result<(usize, String)> {
     match result {
         Ok(res) => Ok((res, "".to_string())),
         Err(err) => {

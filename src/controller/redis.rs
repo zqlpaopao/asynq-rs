@@ -224,10 +224,8 @@ pub async fn get_rdb() -> Result<PooledConnection<RedisConnectionManager>> {
 mod tests {
     use crate::common::func::{make_queue, make_task_key};
     use crate::common::queue::PENDING;
-    use crate::common::rdb_cmd::{RDB_COMPLETED_CMD, RDB_ENQUEUE_CMD};
-    use crate::controller::redis::{
-        init_global_redis, make_lua_sha, RedisClientOpt, GLOBAL_REDIS_POOL,
-    };
+    use crate::common::rdb_cmd::RDB_ENQUEUE_CMD;
+    use crate::controller::redis::{init_global_redis, RedisClientOpt, GLOBAL_REDIS_POOL};
     use crate::controller::task::Task;
     use chrono::Utc;
     use serde_json::json;

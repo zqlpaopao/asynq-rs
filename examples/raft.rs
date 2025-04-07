@@ -1,24 +1,23 @@
+#![allow(dead_code)]
 use asynq_rs::controller::redis::{init_global_redis, RdbType, RedisClientOpt};
 use asynq_rs::tool::more_raft_lock::raft::Raft;
 use fast_log::consts::LogSize;
 use fast_log::plugin::file_split::{KeepType, RawFile, Rolling, RollingType};
 use fast_log::plugin::packer::LogPacker;
 use fast_log::Config;
-use log::LevelFilter;
-use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
-use std::time::Duration;
-use chrono::Local;
-use tokio::select;
-use tokio::sync::{broadcast, RwLock};
 use get_local_info::get_pc_ipv4;
+use log::LevelFilter;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::RwLock;
 
 // cargo run  --example  raft --features raft_lock
 #[tokio::main]
 async fn main() {
     init_log();
     let group_name = "test";
-    let lock_num = 1;
+    let lock_num = 3;
     let node_num = 3;
 
     let mut handles = vec![];
@@ -27,10 +26,11 @@ async fn main() {
         let handle = tokio::spawn(async move {
             make_raft_lock(
                 group_name,
-                &format!("{}_{}", get_pc_ipv4(),i),
+                &format!("{}_{}", get_pc_ipv4(), i),
                 lock_num,
                 node_num,
-            ).await;
+            )
+            .await;
         });
         handles.push(handle);
     }
@@ -62,7 +62,7 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
     };
 
     let _ = init_global_redis(opt).await.unwrap();
-    let  raft = Arc::new(Raft::new(
+    let raft = Arc::new(Raft::new(
         group_name.to_string(),
         lock_num as u16,
         node_num as u16,
@@ -76,11 +76,11 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
         {
             lock = raft.lock(lock_namec, 60).await.unwrap_or_default()
         }
-        if  lock == 1 {
+        if lock == 1 {
             let raft_clone = raft.clone();
             let lock_name = lock_namec.to_string();
-            let  break_flag_renewal = break_flag.clone();
-            let  break_flag_work = break_flag.clone();
+            let break_flag_renewal = break_flag.clone();
+            let break_flag_work = break_flag.clone();
             let break_flag_single = break_flag.clone();
 
             println!("{} : 加锁成功", lock_namec);
@@ -90,14 +90,16 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                 let raft_clone = raft_clone.clone();
                 let lock_name = lock_name.clone();
                 async move {
-
                     let mut interval = tokio::time::interval(Duration::from_secs(50));
                     loop {
                         let break_flag;
                         {
-                            break_flag = break_flag_renewal.read().await.load(std::sync::atomic::Ordering::SeqCst);
+                            break_flag = break_flag_renewal
+                                .read()
+                                .await
+                                .load(std::sync::atomic::Ordering::SeqCst);
                         }
-                        if break_flag{
+                        if break_flag {
                             break;
                         }
                         interval.tick().await;
@@ -107,7 +109,6 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                                 Err(e) => println!("{} 续期失败: {}", lock_name, e),
                             }
                         }
-
                     }
                 }
             });
@@ -118,9 +119,12 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                 loop {
                     let break_flag;
                     {
-                        break_flag = break_flag_work.read().await.load(std::sync::atomic::Ordering::SeqCst);
+                        break_flag = break_flag_work
+                            .read()
+                            .await
+                            .load(std::sync::atomic::Ordering::SeqCst);
                     }
-                    if break_flag{
+                    if break_flag {
                         break;
                     }
 
@@ -135,26 +139,25 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
             // 监控任务状态
             tokio::spawn(async move {
                 tokio::select! {
-                _ = renewal_handle => {
-                        println!("续期任务意外结束");
+                    _ = renewal_handle => {
+                            println!("续期任务意外结束");
 
-                    },
-                _ = work_handle => {
-                        println!("工作处理任务结束");
+                        },
+                    _ = work_handle => {
+                            println!("工作处理任务结束");
 
-                    },
-            }
+                        },
+                }
                 // 这里可以添加清理逻辑
-                break_flag_single.write().await.store(true, std::sync::atomic::Ordering::Relaxed);
+                break_flag_single
+                    .write()
+                    .await
+                    .store(true, std::sync::atomic::Ordering::Relaxed);
                 // raft.un_lock(lock_namec).await.unwrap();
-
             });
         }
         tokio::time::sleep(Duration::from_secs(50)).await;
     }
-
-
-
 
     //
     //
@@ -208,7 +211,7 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
 }
 
 async fn basic_test() {
-    let mut raft = Raft::new("test".to_string(), 2, 2);
+    let raft = Raft::new("test".to_string(), 2, 2);
     let res = raft.lock("local2", 300).await.unwrap();
     println!("local2-{:?}", res);
     let res = raft.lock("local1", 30).await.unwrap();

@@ -1,5 +1,10 @@
+#[cfg(feature = "async")]
 pub const ENQUEUE: &str = "ENQUEUE";
+
+#[cfg(feature = "async")]
 pub const DEQUEUE: &str = "DEQUEUE";
+
+#[cfg(feature = "async")]
 pub const CALLBACK: &str = "CALLBACK";
 
 // enqueueCmd enqueues a given task message.
@@ -16,6 +21,7 @@ pub const CALLBACK: &str = "CALLBACK";
 // Output:
 // Returns 1 if successfully enqueued
 // Returns 0 if task ID already exists
+#[cfg(feature = "async")]
 pub const RDB_ENQUEUE_CMD: &str = r#"
 if redis.call("EXISTS", KEYS[1]) == 1 then
     return 0
@@ -34,6 +40,7 @@ return 1
 // Output:
 // Returns 0 if no pending task is found in the given queue.
 // Returns a list Task
+#[cfg(feature = "async")]
 pub const RDB_DEQUEUE_CMD: &str = r#"
 local len = redis.call('LLEN',KEYS[1])
 if len == 0 then
@@ -70,6 +77,7 @@ return list
 // ARGV[6] -> 1 success 2 fail
 // ARGV[7] -> stats expiration timestamp
 // ARGV[8] -> max int64 value
+#[cfg(feature = "async")]
 pub const RDB_COMPLETED_CMD: &str = r#"
 redis.call("HSET", KEYS[1], "msg", ARGV[2], "state",ARGV[3],"completed_at", ARGV[4],"run_times",ARGV[5])
 if tonumber(ARGV[6]) == tonumber(1) then

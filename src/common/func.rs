@@ -1,11 +1,15 @@
+#[cfg(feature = "async")]
 use crate::common::queue::QUEUED;
+
 use crate::controller::redis::GLOBAL_REDIS_SCRIPT;
 
+#[cfg(feature = "async")]
 pub fn make_task_key(queue: &str, typ: &str, task_id: &str) -> String {
     //ZQL:{<qname>}:t:<task_id>
     format!("{}:{{{}}}:{{{}}}:{}", QUEUED, queue, typ, task_id)
 }
 
+#[cfg(feature = "async")]
 pub fn make_queue(queue: &str, state: &str) -> String {
     //ZQL:{<qname>}:pending
     format!("{}:{{{}}}:{}", QUEUED, queue, state)

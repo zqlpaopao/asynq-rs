@@ -34,3 +34,4 @@ get_local_info = "0.2.4"
 
 [features]
 raft_lock = []
+async = []

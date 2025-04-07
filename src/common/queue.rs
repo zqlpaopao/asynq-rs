@@ -11,6 +11,3 @@ pub const T: &str = "t";
 
 pub const SUCCEEDED: i8 = 1;
 pub const FAIL: i8 = 2;
-
-pub const EVAL_SHA: &str = "EVALSHA";
-pub const EVAL: &str = "EVAL";

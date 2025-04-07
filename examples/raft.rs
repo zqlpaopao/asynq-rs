@@ -76,50 +76,31 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
         {
             lock = raft.lock(lock_namec, 60).await.unwrap_or_default()
         }
-        if lock == 1 {
-            let raft_clone = raft.clone();
-            let lock_name = lock_namec.to_string();
-            let break_flag_renewal = break_flag.clone();
-            let break_flag_work = break_flag.clone();
-            let break_flag_single = break_flag.clone();
 
-            println!("{} : 加锁成功", lock_namec);
+        if lock != 1 {
+            println!("lock :{}",lock_namec);
+            tokio::time::sleep(Duration::from_secs(50)).await;
+            continue;
+        }
 
-            // 创建续期任务并保持其Handle
-            let renewal_handle = tokio::spawn({
-                let raft_clone = raft_clone.clone();
-                let lock_name = lock_name.clone();
-                async move {
-                    let mut interval = tokio::time::interval(Duration::from_secs(50));
-                    loop {
-                        let break_flag;
-                        {
-                            break_flag = break_flag_renewal
-                                .read()
-                                .await
-                                .load(std::sync::atomic::Ordering::SeqCst);
-                        }
-                        if break_flag {
-                            break;
-                        }
-                        interval.tick().await;
-                        {
-                            match raft_clone.renewal(&lock_name, 60).await {
-                                Ok(_) => println!("{} 续期成功", lock_name),
-                                Err(e) => println!("{} 续期失败: {}", lock_name, e),
-                            }
-                        }
-                    }
-                }
-            });
+        let raft_clone = raft.clone();
+        let lock_name = lock_namec.to_string();
+        let break_flag_renewal = break_flag.clone();
+        let break_flag_work = break_flag.clone();
+        let break_flag_single = break_flag.clone();
 
-            // 创建工作处理任务
-            let work_handle = tokio::spawn(async move {
-                let mut interval = tokio::time::interval(Duration::from_secs(1));
+        println!("{} : 加锁成功", lock_namec);
+
+        // 创建续期任务并保持其Handle
+        let renewal_handle = tokio::spawn({
+            let raft_clone = raft_clone.clone();
+            let lock_name = lock_name.clone();
+            async move {
+                let mut interval = tokio::time::interval(Duration::from_secs(50));
                 loop {
                     let break_flag;
                     {
-                        break_flag = break_flag_work
+                        break_flag = break_flag_renewal
                             .read()
                             .await
                             .load(std::sync::atomic::Ordering::SeqCst);
@@ -127,36 +108,59 @@ async fn make_raft_lock(group_name: &str, lock_namec: &str, lock_num: usize, nod
                     if break_flag {
                         break;
                     }
-
                     interval.tick().await;
-                    println!("{} ------------->处理数据...", lock_name);
-                    tokio::time::sleep(Duration::from_secs(10)).await;
-
-                    // break;
+                    {
+                        match raft_clone.renewal(&lock_name, 60).await {
+                            Ok(_) => println!("{} 续期成功", lock_name),
+                            Err(e) => println!("{} 续期失败: {}", lock_name, e),
+                        }
+                    }
                 }
-            });
+            }
+        });
 
-            // 监控任务状态
-            tokio::spawn(async move {
-                tokio::select! {
-                    _ = renewal_handle => {
-                            println!("续期任务意外结束");
-
-                        },
-                    _ = work_handle => {
-                            println!("工作处理任务结束");
-
-                        },
+        // 创建工作处理任务
+        let work_handle = tokio::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(1));
+            loop {
+                let break_flag;
+                {
+                    break_flag = break_flag_work
+                        .read()
+                        .await
+                        .load(std::sync::atomic::Ordering::SeqCst);
                 }
-                // 这里可以添加清理逻辑
-                break_flag_single
-                    .write()
-                    .await
-                    .store(true, std::sync::atomic::Ordering::Relaxed);
-                // raft.un_lock(lock_namec).await.unwrap();
-            });
-        }
-        tokio::time::sleep(Duration::from_secs(50)).await;
+                if break_flag {
+                    break;
+                }
+
+                interval.tick().await;
+                println!("{} ------------->处理数据...", lock_name);
+                tokio::time::sleep(Duration::from_secs(10)).await;
+
+                // break;
+            }
+        });
+
+        // 监控任务状态
+        tokio::spawn(async move {
+            tokio::select! {
+                _ = renewal_handle => {
+                        println!("续期任务意外结束");
+
+                    },
+                _ = work_handle => {
+                        println!("工作处理任务结束");
+
+                    },
+            }
+            // 这里可以添加清理逻辑
+            break_flag_single
+                .write()
+                .await
+                .store(true, std::sync::atomic::Ordering::Relaxed);
+            // raft.un_lock(lock_namec).await.unwrap();
+        });
     }
 
     //

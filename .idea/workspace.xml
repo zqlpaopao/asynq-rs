@@ -9,7 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ee2716a8-9ae8-4fb0-829c-241bae35f9cd" name="更改" comment="">
       <change afterPath="$PROJECT_DIR$/../rust_test/my_test/src/controller/ai/tch_rs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/raft.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/raft.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +113,7 @@
       <workItem from="1740619707988" duration="571000" />
       <workItem from="1742793079792" duration="14638000" />
       <workItem from="1743131446437" duration="3496000" />
-      <workItem from="1743156694620" duration="55990000" />
+      <workItem from="1743156694620" duration="66698000" />
     </task>
     <servers />
   </component>

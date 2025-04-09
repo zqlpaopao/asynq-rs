@@ -156,7 +156,6 @@ else
         return 0
     end
 end
-return n
 "#;
 #[cfg(feature = "raft_lock")]
 pub const RDB_RAFT_RENEWAL: &str = "Renewal";

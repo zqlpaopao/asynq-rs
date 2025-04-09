@@ -1,6 +1,6 @@
 [package]
 name = "asynq-rs"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["ZhangQiuLi <1005072942@qq.com>"]
 license = "MIT"
 homepage = "https://github.com/zqlpaopao/asynq-rs"

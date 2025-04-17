@@ -172,12 +172,12 @@ pub const RDB_RAFT_RENEWAL: &str = "Renewal";
 // Returns 0
 #[cfg(feature = "raft_lock")]
 pub const RDB_RAFT_RENEWAL_CMD: &str = r#"
-  local val =  redis.call("HGET", KEYS[1],KEYS[2])
-  if val == nil then
-    return 0
-  end
-  redis.call("HSET", KEYS[1],KEYS[2],ARGV[1])
-  return 1
+    local val =  redis.call("HGET", KEYS[1], KEYS[2])
+    if val == false or val == nil  then
+        return 0
+    end
+    redis.call("HSET", KEYS[1], KEYS[2], ARGV[1])
+    return 1
 "#;
 
 #[cfg(feature = "raft_lock")]

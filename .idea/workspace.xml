@@ -3,14 +3,19 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="ALL" />
   </component>
+  <component name="CargoProjectFeatures">
+    <cargoProject file="$PROJECT_DIR$/Cargo.toml">
+      <package file="$PROJECT_DIR$">
+        <feature name="raft_lock" />
+      </package>
+    </cargoProject>
+  </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee2716a8-9ae8-4fb0-829c-241bae35f9cd" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/../rust_test/my_test/src/controller/ai/tch_rs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/common/rdb_cmd.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/common/rdb_cmd.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
